@@ -14,7 +14,14 @@ function capitalizeFirst(s) {
     return s.charAt(0).toUpperCase() + s.substring(1);
 }
 
-function playRound(playerSelection, computerSelection) {
+function playRound(playerSelection, computerSelection, results_div, scoreboard) {
+
+    let num_tot = scoreboard.getAttribute("data-total");
+
+    if (num_tot >= 5) {
+        return;
+    }
+
     let win_s = "You Win!";
     let lose_s = "You Lose!";
     let gs = "";
@@ -41,32 +48,68 @@ function playRound(playerSelection, computerSelection) {
     } else {
         s = `Draw! You both did ${playerSelection}`;
     }
+    
+    let doc_s = document.createElement('p');
+    doc_s.classList.add('gameString');
+    doc_s.textContent = s;
+    results_div.appendChild(doc_s);
 
-    return [gs, s];
+    switch (gs) {
+        case "win": 
+            console.log(scoreboard.getAttribute("data-wins"));
+            scoreboard.setAttribute("data-wins", +scoreboard.getAttribute("data-wins")+ 1);
+            break;
+        case "draw":
+            console.log(scoreboard.getAttribute("data-draws"));
+            scoreboard.setAttribute("data-draws", +scoreboard.getAttribute("data-draws")+ 1);
+            break;
+        case "loss":
+            console.log(scoreboard.getAttribute("data-losses"));
+            scoreboard.setAttribute("data-losses", +scoreboard.getAttribute("data-losses")+ 1);
+            break;
+    }
+
+    scoreboard.setAttribute("data-total", +scoreboard.getAttribute("data-total")+ 1);
+
+    num_wins = scoreboard.getAttribute("data-wins");
+    num_draws = scoreboard.getAttribute("data-draws");
+    num_losses = scoreboard.getAttribute("data-losses");
+    num_tot = scoreboard.getAttribute("data-total");
+
+    scoreboard.textContent = `Wins: ${num_wins}, \
+    Draws: ${num_draws}, Losses: ${num_losses},\
+    Total Games: ${num_tot}`;
+
+    if (num_tot >= 5) {
+        let final_s = document.createElement('p');
+
+        if (num_wins > num_losses) {
+            final_s.textContent = "You Win!";
+        } else if (num_wins < num_losses) {
+            final_s.textContent = "You Lose!";
+        } else {
+            final_s.textContent = "Draw!";
+        }
+
+        results_div.appendChild(final_s);  
+
+        return "done";
+    }
+
 }
 
 function game() {
-    let games_won = 0;
-    let games_lost = 0;
+    const buttons = document.querySelectorAll("button");
+    const results_div = document.querySelector(".results");
+    const scoreboard = document.querySelector(".scoreboard");
 
-    for (let i = 0; i < 5; i++) {
-        let playerSelection = prompt("Rock, Paper, or Scissors?");
-        let [gs, s] = playRound(playerSelection, getComputerChoice());
-        console.log(s);
-        if (gs === "win") {
-            games_won += 1;
-        } else if (gs === "loss") {
-            games_lost += 1;
-        }
-    }
+    buttons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            playRound(this.id, getComputerChoice(), results_div, scoreboard);
+        }, );
+    });
 
-    if (games_won > games_lost) {
-        console.log("You Win!");
-    } else if (games_won < games_lost) {
-        console.log("You Lost!");
-    } else {
-        console.log("Draw!");
-    }
+
 }
 
 game();
